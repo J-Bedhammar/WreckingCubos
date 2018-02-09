@@ -10,17 +10,23 @@
 	<body> 
 		<div id="container">
 			<div id="header">
+				<h1>ANGLE</h1>
 				<div id="cameraInfo">
 					<h2>press A to rotate left <br> press S to rotate right</h2>
 				</div>
-				<div id="buttonContainer">
-					<button class="angleButtons" onclick="changeAngle(-Math.PI/4)">-PI/4</button>
-					<button class="angleButtons" onclick="changeAngle(-Math.PI/2)">-PI/2</button>
-					<button class="angleButtons" onclick="changeAngle(-2*Math.PI/3)">-2PI/3</button>
-					<button class="angleButtons" onclick="changeAngle(-5*Math.PI/6)">-5PI/3</button>
-					<button class="angleButtons" onclick="changeAngle(-Math.PI)">-PI</button>
+				<div id="angleContainer">
+					<button class="angleButtons" onclick="changeAngle(-Math.PI/4)">-π/4</button>
+					<button class="angleButtons" onclick="changeAngle(-Math.PI/2)">-π/2</button>
+					<button class="angleButtons" onclick="changeAngle(-2*Math.PI/3)">-2π/3</button>
+					<button class="angleButtons" onclick="changeAngle(-5*Math.PI/6)">-5π/3</button>
+					<button class="angleButtons" onclick="changeAngle(-Math.PI)">-π</button>
+				</div>	
+				<h1>RESET</h1>
+				<div id="resetContainer">
+					<button class="resetButtons" onclick="resetCube()">Reset Cube</button>
+					<button class="resetButtons" onclick="resetAll()">Reset All</button>
 				</div>
-				
+				<h1 id="camera">CAMERA:</h1>
 			</div>
 			<script src="three.js"></script> 
 			<script src="scriptFile.js"></script>

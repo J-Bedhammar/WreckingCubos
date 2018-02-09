@@ -62,8 +62,18 @@ function onWindowResize() {
 };
 
 // Change Start Angle
-function changeAngle(angle) {
+function changeAngle(angle){
 	theta = angle;
+	omega = 0;
+};
+
+function resetCube() {
+	cube.position.x = 2;
+};
+
+function resetAll() {
+	cube.position.x = 2;
+	theta = 0;
 	omega = 0;
 };
 

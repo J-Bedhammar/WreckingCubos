@@ -6,8 +6,22 @@ body {
 	overflow: hidden;
 } 
 
+h1{
+	margin: 0;
+	padding: 1.5vh 1vw 0 2vh;
+	position: relative;
+	color: white;
+	font-family: verdana;
+	font-size: 20px;
+	float: left;
+}
+
 h2{
 	margin:0;
+}
+
+#camera{
+	float: right;	
 }
 
 #container{
@@ -23,11 +37,6 @@ h2{
 	background-color: black;
 }
 
-#buttonContainer{
-	position: relative;
-	width: 70vw;
-	padding-left: 1vw;
-}
 
 #cameraInfo{
 	position: relative;
@@ -39,15 +48,43 @@ h2{
 }
 
 
+#angleContainer{
+	position: relative;
+	width: 27vw;
+	float: left;
+}
+
+#resetContainer{
+	position: relative;
+	width: 20vw;
+	float: left;
+}
+
+
 .angleButtons { 
 	position: relative;
-	width: 10vw; 
+	width: 5vw; 
+	height: 5vh;
+	background-color: #4CAF50;
+	color: white;
+	border: 2px solid black;	
+	z-index: 1;
+	font-size: verdana;
+	margin: 1vh 0;
+	font-weight: bold;
+} 
+
+.resetButtons { 
+	position: relative;
+	width: 8vw; 
 	height: 5vh;
 	background-color: #4CAF50;
 	color: white;
 	border: 2px solid black;	
 	z-index: 1;
 	margin: 1vh 0;
+	font-size: verdana bold;
+	font-weight: bold;
 } 
 
 .angleButtons:hover{
