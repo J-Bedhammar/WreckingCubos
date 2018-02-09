@@ -1,0 +1,26 @@
+<!DOCTYPE html> 
+
+<html>
+	<head> 
+		<meta charset=utf-8> 
+		<title>Butiful Pendulum</title>
+		<link href="style.css" rel="stylesheet" type="text/css"> 
+	</head> 
+	
+	<body> 
+		<div id="container">
+			<div id="buttonContainer">
+				<button class="angleButtons" onclick="changeAngle(-Math.PI/4)">-PI/4</button>
+				<button class="angleButtons" onclick="changeAngle(-Math.PI/2)">-PI/2</button>
+				<button class="angleButtons" onclick="changeAngle(-2*Math.PI/3)">-2PI/3</button>
+				<button class="angleButtons" onclick="changeAngle(-5*Math.PI/6)">-5PI/3</button>
+				<button class="angleButtons" onclick="changeAngle(-Math.PI)">-PI</button>
+				<div id="cameraInfo">
+					<h2>press a to rotate left <br> press s to rotate right</h2>
+				</div>
+			</div>
+			<script src="three.js"></script> 
+			<script src="scriptFile.js"></script>
+		</div>
+	</body> 
+</html>
