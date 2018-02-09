@@ -227,29 +227,30 @@ function render(){
 	var box1 = new THREE.Box3().setFromObject(sphere);
 	var box2 = new THREE.Box3().setFromObject(cube);
 	
-	collision = box1.intersectsBox(box2);	
-	
-	//console.log("hit: " + hit + ", collision: " + collision );
+	collision = box1.intersectsBox(box2);
 	var K = new Array(2);
+	K = intersect(m,mc,omega,l,vCube);
 	
 	if(collision & omega != 0){
-		
-		K = intersect(m,mc,omega,l,vCube);
 		omega = K[1]/l;
 		hit = true;
 	}
-	
+
 	if(hit){
-		cube.position.x += (K[0])/60;
+		//var frictionForce = 0.0*9.82*mc;
+		//var frictionV = Math.sqrt((2*frictionForce)/mc)/60;
+		
 		var vHitCube = K[0]/60;
-		console.log(vHitCube + " hit:" + hit);
-		hit = false;
-	}
-	
-	if(K[0] > 0){
-		//vHitCube += 0.01;
+		
+		//console.log(vHitCube);
+		//vHitCube -= frictionV;
+
 		cube.position.x += vHitCube;
+		
+		if(vHitCube <= 0)
+			hit = false;
 	}
+
 
 	
 	// TRANSFORMATIONS -------------------
