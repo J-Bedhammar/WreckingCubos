@@ -67,8 +67,11 @@ function changeAngle(angle){
 	omega = 0;
 };
 
+// Reset functions
 function resetCube() {
 	cube.position.x = 2;
+	cube.position.y = 25;
+	fallingCube = 0;
 };
 
 function resetAll() {
@@ -130,7 +133,7 @@ function init(){
 	var lightSphere = new THREE.SphereGeometry(3, 16, 8);
 	var light = new THREE.PointLight( 0xffffff, 1, 100, 1);
 	light.add( new THREE.Mesh(lightSphere, new THREE.MeshBasicMaterial({color: 0xffff00})));
-	light.position.set( 27, 27, 6 );
+	light.position.set( 27, 27, 15 );
 	light.castShadow = true;
 	scene.add( light );
 
@@ -148,7 +151,7 @@ function init(){
 	//	GEOMETRY ------------------------------------------
 	
 	// Create the geometry and material of the object
-	var floor = new THREE.BoxGeometry( 18, 1, 10 ); 
+	var floor = new THREE.BoxGeometry( 25, 1, 10 ); 
 	var floormaterial = new THREE.MeshPhongMaterial( { wireframe: false, color: 0x2d8a2f,  } ); //800000
 
 	var rodGeometry = new THREE.BoxGeometry( rodDiameter, l, rodDiameter);
@@ -216,12 +219,14 @@ function init(){
 	BallTranslate.position.y = -((l/2)+(sphereRadius/2));
 	floor.position.y = -1.5;
 	cube.position.x = 2;
+	cube.position.y = 25;
 	
 };
 
 // RENDER AND ANIMATE ---------------------------------------------
 
 var hit = false;
+var fallingCube = 0;
 
 function render(){
 	
@@ -241,26 +246,36 @@ function render(){
 	var K = new Array(2);
 	K = intersect(m,mc,omega,l,vCube);
 	
+	// Gravity on cube
+	if(cube.position.y != 0){
+		fallingCube += Math.sqrt(2*9.82)/60;
+		cube.position.y -= fallingCube;
+		if(cube.position.y < 0)
+			cube.position.y = 0;
+	}
+	
+	// If collision, box is hit and omega reduced
 	if(collision & omega != 0){
-		omega = K[1]/l;
+		omega = K[1]/l; //velocity sphere / length
 		hit = true;
 	}
-
+	
+	// Move cube if hit
 	if(hit){
 		//var frictionForce = 0.0*9.82*mc;
 		//var frictionV = Math.sqrt((2*frictionForce)/mc)/60;
 		
-		var vHitCube = K[0]/60;
+		var vHitCube = K[0]/60;		//velocity cube / frames
 		
 		//console.log(vHitCube);
 		//vHitCube -= frictionV;
 
 		cube.position.x += vHitCube;
+		cube.position.y += vHitCube;
 		
 		if(vHitCube <= 0)
 			hit = false;
 	}
-
 
 	
 	// TRANSFORMATIONS -------------------
