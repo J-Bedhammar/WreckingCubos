@@ -267,11 +267,14 @@ function render(){
 		
 		var vHitCube = K[0]/60;		//velocity cube / frames
 		
-		//console.log(vHitCube);
-		//vHitCube -= frictionV;
-
-		cube.position.x += vHitCube;
-		cube.position.y += vHitCube;
+		if(Math.sin(K[2])){
+			cube.position.x += (Math.sin(K[2])*vHitCube);
+			cube.position.y += (Math.cos(K[2])*vHitCube);
+		}
+		else{
+			cube.position.x += vHitCube;
+			cube.position.y += vHitCube;
+		}
 		
 		if(vHitCube <= 0)
 			hit = false;
