@@ -94,11 +94,12 @@ function onDocumentKeyDown(event) {
 
 };
 
-function intersect(massPend, massCube, Omega, length, vCube){
+function intersect(massPend, massCube, Omega, length, vCube, theta){
 	
 	vPend = ((Omega*length)*(massPend-massCube) + 2*massCube*vCube)/(massPend + massCube);
 	vCube = (vCube*(massCube-massPend) + 2*massPend*Omega*length)/(massCube + massPend);
-	C = new Array(vCube, vPend);
+	thetacube = theta + Math.PI/2;
+	C = new Array(vCube, vPend, thetacube);
 
 	return C;
 }
@@ -179,12 +180,15 @@ function init(){
 	//Create a cube
 	cube = new THREE.Mesh( cubeGeometry, cubematerial);
 	cube.castShadow = true;
+	
+
 
 	// Add the geometry to the scene
 	scene.add( floor ); 
 	scene.add( sphere );
 	scene.add( rod );
 	scene.add( cube );
+	
 	
 	// Window resize
 	window.addEventListener( 'resize', onWindowResize, false );
@@ -221,6 +225,7 @@ function init(){
 	cube.position.x = 2;
 	cube.position.y = 25;
 	
+	
 };
 
 // RENDER AND ANIMATE ---------------------------------------------
@@ -241,14 +246,16 @@ function render(){
 	// Collision
 	var box1 = new THREE.Box3().setFromObject(sphere);
 	var box2 = new THREE.Box3().setFromObject(cube);
+
 	
 	collision = box1.intersectsBox(box2);
-	var K = new Array(2);
-	K = intersect(m,mc,omega,l,vCube);
+	var K = new Array(3);
+	K = intersect(m,mc,omega,l,vCube, theta);
+	
 	
 	// Gravity on cube
 	if(cube.position.y != 0){
-		fallingCube += Math.sqrt(2*9.82)/60;
+		fallingCube += 9.82/60;
 		cube.position.y -= fallingCube;
 		if(cube.position.y < 0)
 			cube.position.y = 0;
@@ -269,13 +276,13 @@ function render(){
 		
 		if(Math.sin(K[2])){
 			cube.position.x += (Math.sin(K[2])*vHitCube);
-			cube.position.y += (Math.cos(K[2])*vHitCube);
+			cube.position.y += (-Math.cos(K[2])*vHitCube);
 		}
 		else{
 			cube.position.x += vHitCube;
 			cube.position.y += vHitCube;
 		}
-		
+		var fly = true
 		if(vHitCube <= 0)
 			hit = false;
 	}
