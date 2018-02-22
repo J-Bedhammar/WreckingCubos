@@ -31,6 +31,7 @@ var sphere;
 var cube;
 var rod;
 var floor;
+var brick;
 
 
 // SCENE ROOT --------------------------------------------
@@ -45,6 +46,7 @@ var BallTranslate = new THREE.Group();
 // Camera root
 var cameraRoot = new THREE.Group();
 var cameraRotation = new THREE.Group();
+var cameraRotationUD = new THREE.Group();
 var cameraTranslation = new THREE.Group();
 
 
@@ -84,10 +86,8 @@ function resetAll() {
 function onDocumentKeyDown(event) {
     var keyCode = event.which;
 	
-	console.log("key:" + keyCode);
-	
 	if(keyCode == 87){		//w	
-		cameraRotation.rotation.x -= 0.05;
+		cameraRotationUD.rotation.x -= 0.05;
 	}
 	
 	if(keyCode == 65){		//a
@@ -95,7 +95,7 @@ function onDocumentKeyDown(event) {
 	}
 	
 	if(keyCode == 83){		//s
-		cameraRotation.rotation.x += 0.05;
+		cameraRotationUD.rotation.x += 0.05;
 	}
 	
 	if(keyCode == 68){		//d
@@ -157,6 +157,40 @@ function init(){
 	light.shadow.camera.near = 0.5;       // default
 	light.shadow.camera.far = 500;     // default
 
+	//	WALL ------------------------------------------
+	var numBricksHeight = 2;
+	var numBricksLength = 2;
+	var brickPos = new THREE.Vector3();
+	var centerWall;
+	
+	if(numBricksLength % 2 == 0)
+		centerWall = -cubeSide*(numBricksLength/2)+(cubeSide/2);
+	else
+		centerWall = -cubeSide*((numBricksLength-1)/2);
+	
+	brickPos.set(3,0,centerWall);
+	//cubeSide = 2;
+	//mc = 10;
+	
+	for(var row = 0; row < numBricksHeight; row++){
+		
+		for(var i = 0; i < numBricksLength; i++){
+			brick = new THREE.BoxGeometry(cubeSide,cubeSide,cubeSide);
+			var randColor = Math.floor( Math.random() * ( 1 << 24 ) );
+			var brickMaterial = new THREE.MeshPhongMaterial( { wireframe: false, color: randColor,  } ); //800000
+			
+			brick = new THREE.Mesh( brick, brickMaterial);
+			brick.castShadow = true;
+			brick.recieveShadow = true;
+			
+			scene.add(brick);
+			
+			brick.position.set(brickPos.x, brickPos.y, brickPos.z);
+			brickPos.z += cubeSide;
+		}
+		brickPos.y += cubeSide;
+		brickPos.z = centerWall;
+	}
 	
 	//	GEOMETRY ------------------------------------------
 	
@@ -189,7 +223,7 @@ function init(){
 	//Create a cube
 	cube = new THREE.Mesh( cubeGeometry, cubematerial);
 	cube.castShadow = true;
-
+	
 	// Add the geometry to the scene
 	scene.add( floor ); 
 	scene.add( sphere );
@@ -205,7 +239,8 @@ function init(){
 	
 	// Camera branch
 	cameraRoot.add(cameraRotation);
-	cameraRotation.add(cameraTranslation);
+	cameraRotation.add(cameraRotationUD);
+	cameraRotationUD.add(cameraTranslation);
 	cameraTranslation.add(camera);
 	
 	// Change camera position (depth)
@@ -213,6 +248,7 @@ function init(){
 	
 	cameraTranslation.position.y = 9;
 	cameraTranslation.position.z = 20;
+	cameraRotation.rotation.y -= 0.5;
 	
 	// Pendulum branch
 	sceneRoot.add( pivotTranslate);
@@ -251,10 +287,13 @@ function render(){
 	// Collision
 	var box1 = new THREE.Box3().setFromObject(sphere);
 	var box2 = new THREE.Box3().setFromObject(cube);
+	var box3 = new THREE.Box3().setFromObject(brick);
 	
-	collision = box1.intersectsBox(box2);
+	collision = box1.intersectsBox(box3);
 	var K = new Array(2);
 	K = intersect(m,mc,omega,l,vCube);
+	
+	console.log(collision);
 	
 	// Gravity on cube
 	if(cube.position.y != 0){
