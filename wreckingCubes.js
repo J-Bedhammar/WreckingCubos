@@ -33,6 +33,11 @@ var rod;
 var floor;
 var brick;
 
+var numBricksHeight = 1;
+var numBricksLength = 4;
+var brickPos = new THREE.Vector3();
+var centerWall;	
+var brickWall = new Array(numBricksHeight*numBricksLength);
 
 // SCENE ROOT --------------------------------------------
 
@@ -158,10 +163,6 @@ function init(){
 	light.shadow.camera.far = 500;     // default
 
 	//	WALL ------------------------------------------
-	var numBricksHeight = 2;
-	var numBricksLength = 2;
-	var brickPos = new THREE.Vector3();
-	var centerWall;
 	
 	if(numBricksLength % 2 == 0)
 		centerWall = -cubeSide*(numBricksLength/2)+(cubeSide/2);
@@ -169,24 +170,27 @@ function init(){
 		centerWall = -cubeSide*((numBricksLength-1)/2);
 	
 	brickPos.set(3,0,centerWall);
+	var bCount = 0;
 	//cubeSide = 2;
 	//mc = 10;
 	
 	for(var row = 0; row < numBricksHeight; row++){
 		
 		for(var i = 0; i < numBricksLength; i++){
-			brick = new THREE.BoxGeometry(cubeSide,cubeSide,cubeSide);
+			brickWall[bCount] = new THREE.BoxGeometry(cubeSide,cubeSide,cubeSide);
 			var randColor = Math.floor( Math.random() * ( 1 << 24 ) );
 			var brickMaterial = new THREE.MeshPhongMaterial( { wireframe: false, color: randColor,  } ); //800000
 			
-			brick = new THREE.Mesh( brick, brickMaterial);
-			brick.castShadow = true;
-			brick.recieveShadow = true;
+			brickWall[bCount] = new THREE.Mesh( brickWall[bCount], brickMaterial);
+			brickWall[bCount].castShadow = true;
+			brickWall[bCount].recieveShadow = true;
+
+			scene.add(brickWall[bCount]);
 			
-			scene.add(brick);
-			
-			brick.position.set(brickPos.x, brickPos.y, brickPos.z);
+			brickWall[bCount].position.set(brickPos.x, brickPos.y, brickPos.z);
 			brickPos.z += cubeSide;
+			
+			bCount++;
 		}
 		brickPos.y += cubeSide;
 		brickPos.z = centerWall;
@@ -271,8 +275,11 @@ function init(){
 
 // RENDER AND ANIMATE ---------------------------------------------
 
-var hit = false;
+var hit = new Array(numBricksHeight*numBricksLength);
+hit.fill(false);
 var fallingCube = 0;
+
+console.log(hit[0] + " , " + hit[3]);
 
 function render(){
 	
@@ -287,44 +294,49 @@ function render(){
 	// Collision
 	var box1 = new THREE.Box3().setFromObject(sphere);
 	var box2 = new THREE.Box3().setFromObject(cube);
-	var box3 = new THREE.Box3().setFromObject(brick);
 	
-	collision = box1.intersectsBox(box3);
 	var K = new Array(2);
 	K = intersect(m,mc,omega,l,vCube);
 	
-	console.log(collision);
 	
-	// Gravity on cube
-	if(cube.position.y != 0){
-		fallingCube += Math.sqrt(2*9.82)/60;
-		cube.position.y -= fallingCube;
-		if(cube.position.y < 0)
-			cube.position.y = 0;
-	}
-	
-	// If collision, box is hit and omega reduced
-	if(collision & omega != 0){
-		omega = K[1]/l; //velocity sphere / length
-		hit = true;
+	for(var ni = 0; ni < brickWall.length; ni++){
+		console.log(brickWall[ni]);
+		var box3 = new THREE.Box3().setFromObject(brickWall[ni]);
+		collision = box1.intersectsBox(box3);
 		
-	}
-	
-	// Move cube if hit
-	if(hit){
-		//var frictionForce = 0.0*9.82*mc;
-		//var frictionV = Math.sqrt((2*frictionForce)/mc)/60;
-		
-		var vHitCube = K[0]/60;		//velocity cube / frames
 
-		//console.log(vHitCube);
-		//vHitCube -= frictionV;
-
-		cube.position.x += vHitCube;
-		cube.position.y += Math.sin(theta+90)*vHitCube;
+		// Gravity on cube
+		if(brickWall[ni].position.y != 0){
+			fallingCube += Math.sqrt(2*9.82)/60;
+			brickWall[ni].position.y -= fallingCube;
+			if(brickWall[ni].position.y < 0)
+				brickWall[ni].position.y = 0;
+		}
+			
+		// If collision, box is hit and omega reduced
+		if(collision & omega != 0){
+			omega = K[1]/l; //velocity sphere / length
+			hit[ni] = true;
+		}
 		
-		if(vHitCube <= 0)
-			hit = false;
+		// Move cube if hit
+		if(hit[ni]){
+			//var frictionForce = 0.0*9.82*mc;
+			//var frictionV = Math.sqrt((2*frictionForce)/mc)/60;
+			
+			var vHitCube = K[0]/60;		//velocity cube / frames
+
+			//console.log(vHitCube);
+			//vHitCube -= frictionV;
+			
+			brickWall[ni].position.x += vHitCube;
+			brickWall[ni].rotation.y -= vHitCube;
+			brickWall[ni].position.y += Math.sin(theta+90)*vHitCube;
+			
+			if(vHitCube <= 0)
+				hit[ni] = false;
+		}
+
 	}
 
 	
