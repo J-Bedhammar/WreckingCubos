@@ -33,7 +33,7 @@ var rod;
 var floor;
 var brick;
 
-var numBricksHeight = 1;
+var numBricksHeight = 2;
 var numBricksLength = 4;
 var brickPos = new THREE.Vector3();
 var centerWall;	
@@ -76,16 +76,30 @@ function changeAngle(angle){
 
 // Reset functions
 function resetCube() {
-	cube.position.x = 2;
-	cube.position.y = 25;
-	fallingCube = 0;
+	var cCount = 0;
+	brickPos.set(3,0,centerWall);
+	
+	for(var i = 0; i < numBricksHeight; i++){
+		for(var j = 0; j < numBricksLength; j++){
+			brickWall[cCount].position.set(brickPos.x, brickPos.y, brickPos.z);
+			brickPos.z += cubeSide;
+			brickWall[cCount].rotation.set(0,0,0);
+			cCount++;
+		}
+		brickPos.y += cubeSide;
+		brickPos.z = centerWall;
+	}
+	fallingCubes = 0;
 };
 
 function resetAll() {
-	cube.position.x = 2;
+	resetCube();
+	
+	fallingCubes = 0;
 	theta = 0;
 	omega = 0;
 };
+
 
 // Camera Rotation
 function onDocumentKeyDown(event) {
@@ -189,7 +203,7 @@ function init(){
 			
 			brickWall[bCount].position.set(brickPos.x, brickPos.y, brickPos.z);
 			brickPos.z += cubeSide;
-			
+
 			bCount++;
 		}
 		brickPos.y += cubeSide;
@@ -199,7 +213,7 @@ function init(){
 	//	GEOMETRY ------------------------------------------
 	
 	// Create the geometry and material of the object
-	var floor = new THREE.BoxGeometry( 25, 1, 10 ); 
+	var floor = new THREE.BoxGeometry( 25, 1, 15 ); 
 	var floormaterial = new THREE.MeshPhongMaterial( { wireframe: false, color: 0x2d8a2f,  } ); //800000
 
 	var rodGeometry = new THREE.BoxGeometry( rodDiameter, l, rodDiameter);
@@ -207,9 +221,6 @@ function init(){
 
 	var sphereGeometry = new THREE.SphereGeometry(sphereRadius, 10, 10);
 	var spherematerial = new THREE.MeshStandardMaterial( { wireframe: false, color: 0x4e4e4e, metalness: 0.6, roughness: 0.6} );
-	
-	var cubeGeometry = new THREE.BoxGeometry( cubeSide, cubeSide, cubeSide ); 
-	var cubematerial = new THREE.MeshPhongMaterial( { wireframe: false, color: 0x800000,  } ); //800000
 
 	// Create a floor
 	floor = new THREE.Mesh( floor, floormaterial ); 
@@ -224,15 +235,11 @@ function init(){
 	rod = new THREE.Mesh( rodGeometry, rodmaterial);
 	rod.castShadow = true;
 	
-	//Create a cube
-	cube = new THREE.Mesh( cubeGeometry, cubematerial);
-	cube.castShadow = true;
 	
 	// Add the geometry to the scene
 	scene.add( floor ); 
 	scene.add( sphere );
 	scene.add( rod );
-	scene.add( cube );
 	
 	// Window resize
 	window.addEventListener( 'resize', onWindowResize, false );
@@ -268,8 +275,6 @@ function init(){
 	rodTranslate.position.y = -l/2;
 	BallTranslate.position.y = -((l/2)+(sphereRadius/2));
 	floor.position.y = -1.5;
-	cube.position.x = 2;
-	cube.position.y = 25;
 	
 };
 
@@ -277,7 +282,7 @@ function init(){
 
 var hit = new Array(numBricksHeight*numBricksLength);
 hit.fill(false);
-var fallingCube = 0;
+var fallingCubes = 0;
 
 console.log(hit[0] + " , " + hit[3]);
 
@@ -293,25 +298,16 @@ function render(){
 	
 	// Collision
 	var box1 = new THREE.Box3().setFromObject(sphere);
-	var box2 = new THREE.Box3().setFromObject(cube);
 	
+	// Intersection parameters
 	var K = new Array(2);
 	K = intersect(m,mc,omega,l,vCube);
 	
-	
+	// Box collision
 	for(var ni = 0; ni < brickWall.length; ni++){
-		console.log(brickWall[ni]);
 		var box3 = new THREE.Box3().setFromObject(brickWall[ni]);
 		collision = box1.intersectsBox(box3);
 		
-
-		// Gravity on cube
-		if(brickWall[ni].position.y != 0){
-			fallingCube += Math.sqrt(2*9.82)/60;
-			brickWall[ni].position.y -= fallingCube;
-			if(brickWall[ni].position.y < 0)
-				brickWall[ni].position.y = 0;
-		}
 			
 		// If collision, box is hit and omega reduced
 		if(collision & omega != 0){
@@ -319,8 +315,17 @@ function render(){
 			hit[ni] = true;
 		}
 		
-		// Move cube if hit
+		// Move cubes if hit
 		if(hit[ni]){
+			
+			// Gravity on cube
+			if(brickWall[ni].position.y != 0){
+				fallingCubes += Math.sqrt(2*9.82)/60;
+				brickWall[ni].position.y -= fallingCubes;
+				if(brickWall[ni].position.y < 0)
+					brickWall[ni].position.y = 0;
+			}
+				
 			//var frictionForce = 0.0*9.82*mc;
 			//var frictionV = Math.sqrt((2*frictionForce)/mc)/60;
 			
@@ -330,7 +335,16 @@ function render(){
 			//vHitCube -= frictionV;
 			
 			brickWall[ni].position.x += vHitCube;
-			brickWall[ni].rotation.y -= vHitCube;
+			
+			if(brickWall[ni].position.z > sphere.position.z){
+				brickWall[ni].rotation.y -= Math.sin(theta+90)*vHitCube;
+				brickWall[ni].position.z += Math.sin(theta+90)*vHitCube;
+			}
+			if(brickWall[ni].position.z < sphere.position.z){
+				brickWall[ni].rotation.y += Math.sin(theta+90)*vHitCube;
+				brickWall[ni].position.z -= Math.sin(theta+90)*vHitCube;
+			}				
+			
 			brickWall[ni].position.y += Math.sin(theta+90)*vHitCube;
 			
 			if(vHitCube <= 0)

@@ -12,13 +12,15 @@ h1{
 	position: relative;
 	color: white;
 	font-family: verdana;
-	font-size: 20px;
+	font-size: 1.5vw;
 	float: left;
 }
 
 h2{
 	margin:0;
 }
+
+/* ------------- ID -------------*/
 
 #camera{
 	float: right;	
@@ -37,16 +39,14 @@ h2{
 	background-color: black;
 }
 
-
 #cameraInfo{
 	position: relative;
-	font-size: 9px;
+	font-size: 0.75vw;
 	font-family: arial;
 	color: white;
 	float: right;
 	padding: 1vh 3vw 0 0;
 }
-
 
 #angleContainer{
 	position: relative;
@@ -60,6 +60,7 @@ h2{
 	float: left;
 }
 
+/* ----------- CLASSER -----------*/
 
 .angleButtons { 
 	position: relative;
