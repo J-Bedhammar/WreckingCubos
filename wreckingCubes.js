@@ -278,6 +278,7 @@ function init(){
 var hit = new Array(numBricksHeight*numBricksLength);
 hit.fill(false);
 var fallingCube = 0;
+var spherePos = 0;
 
 console.log(hit[0] + " , " + hit[3]);
 
@@ -302,7 +303,17 @@ function render(){
 		//console.log(brickWall[ni]);
 	var box = new THREE.Box3().setFromObject(brickWall[ni]);
 		collision = box1.intersectsBox(box);
-
+		if(collision){
+			//console.log(sphere.position.x);
+			spherePos = theta*l;
+			if(brickWall[ni].position.x -cubeSide/2 < spherePos +d/2){
+				brickWall[ni].position.x = spherePos +d/2;
+			}
+		}
+	
+		
+		
+		
 		// Gravity on cube
 		if(brickWall[ni].position.y != 0){
 			fallingCube += Math.sqrt(2*9.82)/60;
@@ -326,31 +337,27 @@ function render(){
 
 			//console.log(vHitCube);
 			//vHitCube -= frictionV;
+	
+			if(Math.sin(K[2])){
+			brickWall[ni].position.x += Math.sin(K[2])*vHitCube;
 			
-			if(brickWall[ni].position.y > 0){
-				brickWall[ni].position.x += 3*vHitCube;
-			}	
-			else{
-				if(Math.sin(K[2])){
-				brickWall[ni].position.x += Math.sin(K[2])*vHitCube;
-				
-				}
-				else{ 
-				brickWall[ni].position.x += vHitCube;
-				}
-				brickWall[ni].position.z += 0.1*brickWall[ni].position.z*vHitCube;
-				brickWall[ni].rotation.y -= 0.2*vHitCube;
-				brickWall[ni].position.y += Math.sin(theta+90)*vHitCube;
-				
-				if(vHitCube <= 0)
-					hit[ni] = false;
 			}
+			else{ 
+			brickWall[ni].position.x += vHitCube;
+			}
+			brickWall[ni].position.z += 0.1*brickWall[ni].position.z*vHitCube;
+			brickWall[ni].rotation.y -= 0.2*vHitCube;
+			brickWall[ni].position.y += Math.sin(theta+90)*vHitCube;
+			
+			if(vHitCube <= 0)
+			hit[ni] = false;
 			//console.log(brickWall[ni].position.y);
 			
 		}
 
 		for(var i = 0; i< ni; i++){
-			if(brickWall[ni].position.z == brickWall[i].position.z){
+			if(brickWall[i].position.z - cubeSide/2 < brickWall[ni].position.z && 
+				brickWall[ni].position.z < brickWall[i].position.z + cubeSide/2){
 				if(Math.abs(brickWall[ni].position.y - brickWall[i].position.y) < cubeSide){
 					brickWall[ni].position.y = brickWall[i].position.y + cubeSide;
 				}
