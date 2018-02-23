@@ -347,7 +347,7 @@ function render(){
 		}
 		
 		for(var i = 0; i< ni; i++){
-			//check so the cubes are separated
+			//makes it unable for cubes to move through each other
 			if(brickWall[i].position.z - cubeSide < brickWall[ni].position.z && 
 			brickWall[ni].position.z < brickWall[i].position.z + cubeSide &&
 			brickWall[i].position.x - cubeSide < brickWall[ni].position.x &&
@@ -378,16 +378,10 @@ function render(){
 			Math.abs(brickWall[ni].position.y - brickWall[i].position.y) == cubeSide &&
 			Math.abs(brickWall[ni].position.z - brickWall[i].position.z) == 0){
 				console.log("hej");
-				brickWall[ni].rotation.z -= 28/60;
-				brickWall[ni].position.x += 0.05;
+				brickWall[ni].rotation.z -= 28/60; //hårdkodat, ändra
+				brickWall[ni].position.x += 0.05; // flyttar x-led för att gravitationen ska börja verka på den
 			}
-		}	
-		
-		
-		
-		
-		
-		
+		}		
 	}
 
 	
