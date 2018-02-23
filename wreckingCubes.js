@@ -33,8 +33,8 @@ var rod;
 var floor;
 var brick;
 
-var numBricksHeight = 3;
-var numBricksLength = 5;
+var numBricksHeight = 2;
+var numBricksLength = 4;
 var brickPos = new THREE.Vector3();
 var centerWall;	
 var brickWall = new Array(numBricksHeight*numBricksLength);
@@ -345,8 +345,9 @@ function render(){
 			//console.log(brickWall[ni].position.y);
 			
 		}
-
+		
 		for(var i = 0; i< ni; i++){
+			//check so the cubes are separated
 			if(brickWall[i].position.z - cubeSide < brickWall[ni].position.z && 
 			brickWall[ni].position.z < brickWall[i].position.z + cubeSide &&
 			brickWall[i].position.x - cubeSide < brickWall[ni].position.x &&
@@ -356,13 +357,37 @@ function render(){
 					brickWall[ni].position.y = brickWall[i].position.y + cubeSide;
 				}
 			}
+			
+			
 			if(Math.abs(brickWall[ni].position.x - brickWall[i].position.x) < cubeSide &&
-			Math.abs(brickWall[ni].position.y - brickWall[i].position.y) != cubeSide &&
-			brickWall[ni].position.z == brickWall[i].position.z){
+			brickWall[ni].position.y == brickWall[i].position.y &&
+			Math.abs(brickWall[ni].position.z - brickWall[i].position.z) < cubeSide){
 				console.log(brickWall[ni].position.x);
-				//brickWall[ni].rotation.z -= 0.98*vHitCube;
+				brickWall[ni].position.x = brickWall[i].position.x + cubeSide;
 			} 
+			
+			
+			if(Math.abs(brickWall[ni].position.z - brickWall[i].position.z) < cubeSide &&
+			brickWall[ni].position.y == brickWall[i].position.y &&
+			Math.abs(brickWall[ni].position.x - brickWall[i].position.x) < cubeSide){
+				brickWall[ni].position.z = brickWall[i].position.z + cubeSide;
+			}
+			
+			//tilting cubes
+			if(brickWall[ni].position.x > brickWall[i].position.x + cubeSide/2 &&
+			Math.abs(brickWall[ni].position.y - brickWall[i].position.y) == cubeSide &&
+			Math.abs(brickWall[ni].position.z - brickWall[i].position.z) == 0){
+				console.log("hej");
+				brickWall[ni].rotation.z -= 28/60;
+				brickWall[ni].position.x += 0.05;
+			}
 		}	
+		
+		
+		
+		
+		
+		
 	}
 
 	
