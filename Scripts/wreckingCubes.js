@@ -253,7 +253,7 @@ function init(){
 	scene.add( floor ); 
 	scene.add( sphere );
 	scene.add( rod );
-	//scene.add( miley );
+	scene.add( miley );
 		
 	// Window resize
 	window.addEventListener( 'resize', onWindowResize, false );
@@ -282,7 +282,7 @@ function init(){
 	rodTranslate.add( rod );
 	rod.add( BallTranslate );
 	BallTranslate.add( sphere );
-	//sphere.add( miley );
+	sphere.add( miley );
 	
 	// Fixed transformations
 	pivotTranslate.position.y = l+1.5;
