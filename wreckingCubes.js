@@ -33,7 +33,7 @@ var rod;
 var floor;
 var brick;
 
-var numBricksHeight = 3;
+var numBricksHeight = 2;
 var numBricksLength = 4;
 var brickPos = new THREE.Vector3();
 var centerWall;	
@@ -222,7 +222,19 @@ function init(){
 
 	var sphereGeometry = new THREE.SphereGeometry(sphereRadius, 10, 10);
 	var spherematerial = new THREE.MeshStandardMaterial( { wireframe: false, color: 0x4e4e4e, metalness: 0.6, roughness: 0.6} );
+	
+	// Miley
+ 	var loader = new THREE.CubeTextureLoader();
 
+	var textureMiley = loader.load( [
+		'Miley.png'
+	] );
+	
+	var miley = new THREE.BoxGeometry( 2, 2, 0.21 );
+	var mileyMaterial = new THREE.MeshPhongMaterial( { wireframe: false, color: 0x2d8a2f, envMap: textureMiley } ); //800000
+	miley = new THREE.Mesh( miley, mileyMaterial);
+	
+	
 	// Create a floor
 	floor = new THREE.Mesh( floor, floormaterial ); 
 	floor.receiveShadow = true;
@@ -241,7 +253,8 @@ function init(){
 	scene.add( floor ); 
 	scene.add( sphere );
 	scene.add( rod );
-	
+	scene.add( miley );
+		
 	// Window resize
 	window.addEventListener( 'resize', onWindowResize, false );
 	
@@ -267,8 +280,9 @@ function init(){
 	pivotTranslate.add(rodSpin);
 	rodSpin.add( rodTranslate );
 	rodTranslate.add( rod );
-	rod.add(BallTranslate);
-	BallTranslate.add(sphere);
+	rod.add( BallTranslate );
+	BallTranslate.add( sphere );
+	sphere.add( miley );
 	
 	// Fixed transformations
 	pivotTranslate.position.y = l+1.5;
@@ -276,6 +290,7 @@ function init(){
 	rodTranslate.position.y = -l/2;
 	BallTranslate.position.y = -((l/2)+(sphereRadius/2));
 	floor.position.y = -1.5;
+	miley.position.y += 1.5;
 	
 };
 
@@ -285,6 +300,9 @@ var hit = new Array(numBricksHeight*numBricksLength);
 hit.fill(false);
 var fallingCubes = 0;
 var spherePos = 0;
+
+var vCubeArray = new Array();
+var inc = 0;
 
 function render(){
 	
@@ -308,7 +326,6 @@ function render(){
 		var box3 = new THREE.Box3().setFromObject(brickWall[ni]);
 		collision = box1.intersectsBox(box3);
 		
-			
 		// Gravity on cube
 		if(brickWall[ni].position.y != 0){
 			fallingCubes += Math.sqrt(2*9.82)/60;
@@ -334,33 +351,48 @@ function render(){
 		
 		// Move cubes if hit
 		if(hit[ni]){
+			var frictionForce = 0.3*9.82*mc; //trä mot sten
+			var frictionV = Math.sqrt((2*frictionForce)/mc)/60;
 
 			// MOVE CUBE ON HIT
 			var vHitCube = K[0]/60;		//velocity cube / frames
 			
+			vCubeArray[inc]= vHitCube;
+			inc++;
+			
+			var vCubeFriction = (vCubeArray[0] -= frictionV);
+
+			// If friction > cube velocity
+			if(vCubeFriction < 0)
+				vCubeFriction = 0;
+			
 			if(Math.sin(K[2])){
-				brickWall[ni].position.x += Math.sin(K[2])*vHitCube;
+				brickWall[ni].position.x += Math.sin(K[2])*vCubeFriction;
+				console.log("This");
 			}
 			else			
-				brickWall[ni].position.x += vHitCube;
+				brickWall[ni].position.x += vCubeFriction;
 			
+			// OBS INTE LEGIT
 			// if length of wall is even
   			if(brickWall[ni].position.z > sphere.position.z){
-				brickWall[ni].rotation.y -= Math.sin(theta+90)*vHitCube;
-				brickWall[ni].position.z += Math.sin(theta+90)*vHitCube;
+				brickWall[ni].rotation.y -= Math.sin(theta+90)*vCubeFriction;
+				brickWall[ni].position.z += Math.sin(theta+90)*vCubeFriction;
 			}
 			if(brickWall[ni].position.z < sphere.position.z){
-				brickWall[ni].rotation.y += Math.sin(theta+90)*vHitCube;
-				brickWall[ni].position.z -= Math.sin(theta+90)*vHitCube;
+				brickWall[ni].rotation.y += Math.sin(theta+90)*vCubeFriction;
+				brickWall[ni].position.z -= Math.sin(theta+90)*vCubeFriction;
 			}
 			
-			brickWall[ni].position.y += Math.sin(theta+90)*vHitCube;
+			brickWall[ni].position.y += Math.sin(theta+90)*vCubeFriction;
 			
 			// Cube stops
-			if(vHitCube <= 0)
+			if(vCubeFriction <= 0){
 				hit[ni] = false;
+				inc = 0;
+				vCubeArray.splice(1,vCubeArray.length-1);
+			}
 		}
-		
 		
  		for(var i = 0; i < ni; i++){
 			if(brickWall[i].position.z - cubeSide/2 < brickWall[ni].position.z && 
@@ -392,6 +424,7 @@ function render(){
 			} */
 
 		}//end of foor-loop
+		
 		
 	}//end of for-loop
 
