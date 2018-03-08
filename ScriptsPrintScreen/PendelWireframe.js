@@ -165,10 +165,10 @@ function init(){
 	light.add( new THREE.Mesh(lightSphere, new THREE.MeshBasicMaterial({color: 0xffff00})));
 	light.position.set( 27, 27, 15 );
 	light.castShadow = true;
-	scene.add( light );
+	//scene.add( light );
 
 	// AmbientLight( color, intensity )
-	var ambLight = new THREE.AmbientLight( 0x404040, 2 ); // soft white light
+	var ambLight = new THREE.AmbientLight( 0x404040, 10 ); // soft white light
 	scene.add( ambLight );
 
 	// Set up shadow properties for the pointlight
@@ -176,7 +176,7 @@ function init(){
 	light.shadow.mapSize.height = 512; // default
 	light.shadow.camera.near = 0.5;       // default
 	light.shadow.camera.far = 500;     // default
-
+	
 	//	WALL ------------------------------------------
 	
 	if(numBricksLength % 2 == 0)
@@ -221,9 +221,9 @@ function init(){
 	var rodmaterial = new THREE.MeshPhongMaterial( { wireframe: true, color: 0xffffff } ); 
 
 	var sphereGeometry = new THREE.SphereGeometry(sphereRadius, 10, 10);
-	var spherematerial = new THREE.MeshStandardMaterial( { wireframe: true, color: 0x4e4e4e, metalness: 0.6, roughness: 0.6} );
+	var spherematerial = new THREE.MeshStandardMaterial( { wireframe: true, color: 0x00FF00, metalness: 0.6, roughness: 0.6} );
 	
-	// Miley
+	/*/ Miley
  	var loader = new THREE.CubeTextureLoader();
 
 	var textureMiley = loader.load( [
@@ -233,7 +233,7 @@ function init(){
 	var miley = new THREE.BoxGeometry( 2, 2, 0.21 );
 	var mileyMaterial = new THREE.MeshPhongMaterial( { wireframe: false, color: 0x2d8a2f, envMap: textureMiley } ); //800000
 	miley = new THREE.Mesh( miley, mileyMaterial);
-	
+	*/
 	
 	// Create a floor
 	floor = new THREE.Mesh( floor, floormaterial ); 
