@@ -376,15 +376,15 @@ function render(){
 			// OBS INTE LEGIT
 			// if length of wall is even
   			if(brickWall[ni].position.z > sphere.position.z){
-				brickWall[ni].rotation.y -= Math.sin(theta+90)*vCubeFriction;
-				brickWall[ni].position.z += Math.sin(theta+90)*vCubeFriction;
+				brickWall[ni].rotation.y -= Math.cos(theta+45)*vCubeFriction;
+				brickWall[ni].position.z += Math.cos(theta+45)*vCubeFriction;
 			}
 			if(brickWall[ni].position.z < sphere.position.z){
-				brickWall[ni].rotation.y += Math.sin(theta+90)*vCubeFriction;
-				brickWall[ni].position.z -= Math.sin(theta+90)*vCubeFriction;
+				brickWall[ni].rotation.y += Math.cos(theta+45)*vCubeFriction;
+				brickWall[ni].position.z -= Math.cos(theta+45)*vCubeFriction;
 			}
 			
-			brickWall[ni].position.y += Math.sin(theta+90)*vCubeFriction;
+			brickWall[ni].position.y += Math.cos(theta+90)*vCubeFriction;
 			
 			// Cube stops
 			if(vCubeFriction <= 0){
