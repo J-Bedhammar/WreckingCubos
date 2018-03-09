@@ -23,21 +23,24 @@ var vCube = 0;
 
 
 // GEOMETRY VARIABLES ------------------------------------
+
 var sphereRadius = 1;
 var rodDiameter = 0.2;
 var cubeSide = 2;
 
 var sphere;
-var cube;
 var rod;
 var floor;
 var brick;
 
+// Height and length of wall
 var numBricksHeight = 2;
 var numBricksLength = 4;
+
 var brickPos = new THREE.Vector3();
 var centerWall;	
 var brickWall = new Array(numBricksHeight*numBricksLength);
+
 
 // SCENE ROOT --------------------------------------------
 
@@ -123,6 +126,7 @@ function onDocumentKeyDown(event) {
 
 };
 
+// Calculates velocity of pendulum and cube after collision
 function intersect(massPend, massCube, Omega, length, vCube){
 	
 	vPend = ((Omega*length)*(massPend-massCube) + 2*massCube*vCube)/(massPend + massCube);
@@ -179,6 +183,7 @@ function init(){
 
 	//	WALL ------------------------------------------
 	
+	// Centers the wall, no matter length
 	if(numBricksLength % 2 == 0)
 		centerWall = -cubeSide*(numBricksLength/2)+(cubeSide/2);
 	else
@@ -186,9 +191,9 @@ function init(){
 	
 	brickPos.set(3,0,centerWall);
 	var bCount = 0;
-	//cubeSide = 2;
-	//mc = 10;
+
 	
+	// Create wall of cubes
 	for(var row = 0; row < numBricksHeight; row++){
 		
 		for(var i = 0; i < numBricksLength; i++){
@@ -223,19 +228,7 @@ function init(){
 	var sphereGeometry = new THREE.SphereGeometry(sphereRadius, 10, 10);
 	var spherematerial = new THREE.MeshStandardMaterial( { wireframe: false, color: 0x4e4e4e, metalness: 0.6, roughness: 0.6} );
 	
-	// Miley
- 	var loader = new THREE.CubeTextureLoader();
-
-	var textureMiley = loader.load( [
-		'Miley.png'
-	] );
-	
-	var miley = new THREE.BoxGeometry( 2, 2, 0.21 );
-	var mileyMaterial = new THREE.MeshPhongMaterial( { wireframe: false, color: 0x2d8a2f, envMap: textureMiley } ); //800000
-	miley = new THREE.Mesh( miley, mileyMaterial);
-	
-	
-	// Create a floor
+	// Create the ground
 	floor = new THREE.Mesh( floor, floormaterial ); 
 	floor.receiveShadow = true;
 
@@ -248,12 +241,10 @@ function init(){
 	rod = new THREE.Mesh( rodGeometry, rodmaterial);
 	rod.castShadow = true;
 	
-	
 	// Add the geometry to the scene
 	scene.add( floor ); 
 	scene.add( sphere );
 	scene.add( rod );
-	scene.add( miley );
 		
 	// Window resize
 	window.addEventListener( 'resize', onWindowResize, false );
@@ -282,7 +273,6 @@ function init(){
 	rodTranslate.add( rod );
 	rod.add( BallTranslate );
 	BallTranslate.add( sphere );
-	sphere.add( miley );
 	
 	// Fixed transformations
 	pivotTranslate.position.y = l+1.5;
@@ -290,12 +280,12 @@ function init(){
 	rodTranslate.position.y = -l/2;
 	BallTranslate.position.y = -((l/2)+(sphereRadius/2));
 	floor.position.y = -1.5;
-	miley.position.y += 1.5;
 	
 };
 
 // RENDER AND ANIMATE ---------------------------------------------
 
+// Variables used in render
 var hit = new Array(numBricksHeight*numBricksLength);
 hit.fill(false);
 var fallingCubes = 0;
@@ -306,11 +296,11 @@ var inc = 0;
 
 function render(){
 	
-	//Euler linear model
+	// Euler linear air resistance model
 	//theta = theta + h * omega;
 	//omega = omega + h * ((-g/l)*Math.sin(theta)) - (b/(m*Math.pow(l,2)))*omega;
 	
-	//Euler air resistance model
+	// Euler quadratic air resistance model
 	theta = theta + h * omega;
 	omega = omega + h * (((-g/l)*Math.sin(theta)) - (D/m)*omega*Math.abs(omega)*Math.pow(l,2));
 	
@@ -336,7 +326,7 @@ function render(){
 		}	
 	
 			
-		// If collision -> box is hit and omega reduced
+		// If collision -> box is hit and omega(K[1] - angular velocity) reduced
 		if(collision & omega >= 0){
 			omega = K[1]/l; //velocity sphere / length
 			spherePos = theta*l;
@@ -351,15 +341,17 @@ function render(){
 		
 		// Move cubes if hit
 		if(hit[ni]){
-			var frictionForce = 0.3*9.82*mc; //trä mot sten
+			
+			// Friction
+			var frictionForce = 0.3*9.82*mc; //Wood against stone
 			var frictionV = Math.sqrt((2*frictionForce)/mc)/60;
 
-			// MOVE CUBE ON HIT
 			var vHitCube = K[0]/60;		//velocity cube / frames
 			
 			vCubeArray[inc]= vHitCube;
 			inc++;
 			
+			// Cube velocity reduced by friction
 			var vCubeFriction = (vCubeArray[0] -= frictionV);
 
 			// If friction > cube velocity
@@ -373,8 +365,8 @@ function render(){
 			else			
 				brickWall[ni].position.x += vCubeFriction;
 			
-			// OBS INTE LEGIT
-			// if length of wall is even
+			// NOT PHYSICALLY CORRECT
+			// Rotate cubes if pendulum hit is off center
   			if(brickWall[ni].position.z > sphere.position.z){
 				brickWall[ni].rotation.y -= Math.cos(theta+45)*vCubeFriction;
 				brickWall[ni].position.z += Math.cos(theta+45)*vCubeFriction;
@@ -383,8 +375,8 @@ function render(){
 				brickWall[ni].rotation.y += Math.cos(theta+45)*vCubeFriction;
 				brickWall[ni].position.z -= Math.cos(theta+45)*vCubeFriction;
 			}
-			
-			brickWall[ni].position.y += Math.cos(theta+90)*vCubeFriction;
+			else
+				brickWall[ni].position.y += Math.cos(theta+45)*vCubeFriction;
 			
 			// Cube stops
 			if(vCubeFriction <= 0){
@@ -394,6 +386,7 @@ function render(){
 			}
 		}
 		
+		// Collision between cubes
  		for(var i = 0; i < ni; i++){
 			if(brickWall[i].position.z - cubeSide/2 < brickWall[ni].position.z && 
 				brickWall[ni].position.z < brickWall[i].position.z + cubeSide/2 &&
@@ -415,13 +408,6 @@ function render(){
 						brickWall[ni].position.z = brickWall[i].position.z + cubeSide;
 			}
 
-/*  		if(Math.abs(brickWall[ni].position.x - brickWall[i].position.x) < cubeSide && 
-				Math.abs(brickWall[i].position.y - brickWall[ni].position.y) != cubeSide &&
-				brickWall[i].position.z - cubeSide < brickWall[ni].position.z && 
-				brickWall[ni].position.z < brickWall[i].position.z + cubeSide){
-					
-				brickWall[ni].position.x = brickWall[i].position.x + cubeSide;
-			} */
 
 		}//end of foor-loop
 		
