@@ -398,9 +398,9 @@ function render(){
 				}
 			}
 			
- 			if(Math.abs(brickWall[ni].position.x - brickWall[i].position.x) < cubeSide && 
+ 			if(Math.abs(brickWall[ni].position.x - brickWall[i].position.x) < (4*cubeSide)/5 && 
 				brickWall[ni].position.y == brickWall[i].position.y && 
-				Math.abs(brickWall[ni].position.z - brickWall[i].position.z) < cubeSide){
+				Math.abs(brickWall[ni].position.z - brickWall[i].position.z) < (4*cubeSide)/5){
 					
 					if(Math.abs(brickWall[ni].position.x - brickWall[i].position.x) > Math.abs(brickWall[ni].position.z - brickWall[i].position.z))
 						brickWall[ni].position.x = brickWall[i].position.x + cubeSide;
